@@ -16,9 +16,13 @@ def get_city_id(city)
     url_city = @url_location + city
     city_serialized = open(url_city).read
     city_details = JSON.parse(city_serialized)
-    city_id = city_details["localidad"][0]["id"]
 
-    return city_id
+    if city_details["localidad"].empty?
+        return
+    else
+        city_id = city_details["localidad"][0]["id"]
+        return city_id
+    end
 end
 
 def get_city_details(id)
@@ -65,22 +69,48 @@ def today_av(data)
     return temp
 end
 
+def valid_city?(city)
+    city.match(/^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/)
+end
+
+def weather_check(city)
+    if valid_city?(city)
+        id = get_city_id(city)
+
+        if id 
+            data = get_city_details(id)
+            av_min = week_av_min(data)
+            av_max = week_av_max(data)
+            temp_today = today_av(data)
+        
+            puts "*************************"
+            puts "#{city.capitalize} weather:"
+            puts "Average minimum temperature of the week: #{av_min.to_s}°"
+            puts "Average maximum temperature of the week: #{av_max.to_s}°"
+            puts "Average temperature of the day: #{temp_today.to_s}°"
+        else
+            puts "*************************"
+            puts "No data for this city..."
+            puts "> Try another city"
+            city = gets.chomp.downcase
+
+            weather_check(city)
+        end
+    else
+        puts "*************************"
+        puts "> Please enter a valid city name"
+        city = gets.chomp.downcase
+
+        weather_check(city)
+    end 
+end
+
 if __FILE__ == $0
     puts "========================="
     puts "Welcome to the CLI-tiempo"
     puts "========================="
     puts "> Enter a city name:"
     city = gets.chomp.downcase
-
-    id = get_city_id(city)
-    data = get_city_details(id)
-    av_min = week_av_min(data)
-    av_max = week_av_max(data)
-    temp_today = today_av(data)
-
-    puts "***************"
-    puts "#{city.capitalize} weather:"
-    puts "Average minimum temperature of the week: #{av_min.to_s}°"
-    puts "Average maximum temperature of the week: #{av_max.to_s}°"
-    puts "Average temperature of the day: #{temp_today.to_s}°"
+    
+    weather_check(city)
 end
