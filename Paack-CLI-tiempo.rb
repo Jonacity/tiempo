@@ -5,9 +5,7 @@ require 'json'
 require 'nokogiri'
 require 'net/http'
 require 'active_support/core_ext/hash'
-# require 'pry'
 
-url_base = "http://api.tiempo.com/index.php?api_lang=es&division=102"
 @paack_id = "&affiliate_id=zdo2c683olan"
 @url_location = "https://www.tiempo.com/peticionBuscador.php?lang=es&texto="
 @url_city_details = "http://api.tiempo.com/index.php?api_lang=es&localidad="
@@ -73,7 +71,9 @@ def valid_city?(city)
     city.match(/^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/)
 end
 
-def weather_check(city)
+def weather_check
+    city = gets.chomp.downcase
+
     if valid_city?(city)
         id = get_city_id(city)
 
@@ -92,16 +92,14 @@ def weather_check(city)
             puts "*************************"
             puts "No data for this city..."
             puts "> Try another city"
-            city = gets.chomp.downcase
 
-            weather_check(city)
+            weather_check
         end
     else
         puts "*************************"
         puts "> Please enter a valid city name"
-        city = gets.chomp.downcase
 
-        weather_check(city)
+        weather_check
     end 
 end
 
@@ -110,7 +108,6 @@ if __FILE__ == $0
     puts "Welcome to the CLI-tiempo"
     puts "========================="
     puts "> Enter a city name:"
-    city = gets.chomp.downcase
     
-    weather_check(city)
+    weather_check
 end
